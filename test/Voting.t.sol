@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
 import "../contracts/Voting.sol";
@@ -12,6 +12,8 @@ contract VotingTest is Test {
     uint256 deadline = block.timestamp + 10000000;
     
     bytes32 merkleRoot;
+    bytes32 nullifierHash;
+
 
     function readInputs() internal view returns (string memory) {
         string memory inputDir = string.concat(
@@ -26,6 +28,7 @@ contract VotingTest is Test {
         string memory inputs = readInputs();
         
         merkleRoot = bytes32(vm.parseJson(inputs, ".merkleRoot"));
+        nullifierHash = bytes32(vm.parseJson(inputs, ".nullifierHash"));
 
         verifier = new UltraVerifier();
         voteContract = new Voting(merkleRoot, address(verifier));
@@ -41,7 +44,8 @@ contract VotingTest is Test {
         voteContract.castVote(
             proofBytes,
             0,
-            1
+            1,
+            nullifierHash
         );
     }
 
@@ -49,7 +53,8 @@ contract VotingTest is Test {
         voteContract.castVote(
             hex"12",
             0,
-            1
+            1,
+            nullifierHash
         );
     }
 
@@ -57,21 +62,24 @@ contract VotingTest is Test {
         voteContract.castVote(
             proofBytes,
             0,
-            0
+            0,
+            nullifierHash
         );
     }
-
+    
     function testFail_doubleVoting() public {
         voteContract.castVote(
             proofBytes,
             0,
-            1
+            1,
+            nullifierHash
         );
 
         voteContract.castVote(
             proofBytes,
             0,
-            1
+            1,
+            nullifierHash
         );
     }
 }
