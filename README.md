@@ -22,7 +22,7 @@ Post the execution of this step, you will notice a newly generated [contract](ci
 
 ### Setup
 
-* Install foundry by following the steps [here](https://book.getfoundry.sh/getting-started/installation). We will use foundry for testing and deploying our smart contract.
+* Install foundry by following the steps [here](https://book.getfoundry.sh/getting-started/installation). We will use foundry for testing and deploying our smart contracts.
 
 * Install the `forge-std` lib which will be used in our testing using the command below
 
@@ -36,7 +36,7 @@ forge install https://github.com/foundry-rs/forge-std --no-commit
 forge test
 ```
 
-You will notice that out of 4 tests, only 3 pass. The `testFail_doubleVoting` fails because with our current circuit, the user can still cast multiple votes. We will fix this in the next branch!
+**You will notice that out of 4 tests, only 3 pass. The `testFail_doubleVoting` fails because with our current circuit, the user can still cast multiple votes. We will fix this in the next branch!**
 
 * You can run a local node to deploy these contracts
 
