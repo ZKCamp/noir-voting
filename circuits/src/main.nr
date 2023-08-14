@@ -1,12 +1,16 @@
 use dep::std;
 
-fn main(root : pub Field, index : Field, hash_path : [Field; 2], secret: Field, proposalId: pub Field, vote: pub u8) {
+fn main(root : pub Field, index : Field, hash_path : [Field; 2], secret: Field, proposalId: pub Field, vote: pub u8) -> pub Field {
     let note_commitment = std::hash::pedersen([secret]);
+    let nullifier = std::hash::pedersen([root, secret, proposalId]);
 
     let check_root = std::merkle::compute_merkle_root(note_commitment[0], index, hash_path);
     assert(root == check_root);
     assert(vote <= 1);
+
+    nullifier[0]
 }
+
 
 #[test]
 fn test_valid_build_merkle_tree() {
@@ -23,7 +27,7 @@ fn test_valid_build_merkle_tree() {
     let proposalId = 0;
     let vote = 1;
 
-    main(
+    let nullifier = main(
         root,
         0,
         [commitment_1, right_branch],
@@ -31,4 +35,8 @@ fn test_valid_build_merkle_tree() {
         proposalId,
         vote
     );
+
+    let expected_nullifier = std::hash::pedersen([root, 1, proposalId]);
+
+    assert(nullifier == expected_nullifier[0]);
 }
