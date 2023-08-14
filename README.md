@@ -1,14 +1,14 @@
 ## ZK Voting
 
-## Identity Commitments
+## Merkle Tree - Proof of Membership
 
 ### Circuit Overview
 
-The goal here is to enable the user to prove that they are a member of a certain group (proof of membership) by knowing a secret value.
+The goal here is to replace commitment list with a more suitable option - `Merkle Trees`. Instead of maintaining the whole list of user commitments publically, we can just maintain a single hash - merkle root. You can read more about merkle trees [here](https://brilliant.org/wiki/merkle-tree/).
 
 **Steps Involved:**
 
-* We create a list of commitments of secrets. This list is public
+* We create a merkle tree from commitments of secrets
 
 ```rust
 let comm_1 = std::hash::pedersen([1])[0];
@@ -16,20 +16,26 @@ let comm_2 = std::hash::pedersen([2])[0];
 let comm_3 = std::hash::pedersen([3])[0];
 let comm_4 = std::hash::pedersen([4])[0];
 
-let commitments_list = [comm_1, comm_2, comm_3, comm_4]; 
+let left_branch = std::hash::pedersen([comm_1, comm_2])[0];
+let right_branch = std::hash::pedersen([comm_3, comm_4])[0];
+
+let root = std::hash::pedersen([left_branch,  right_branch])[0];
 ```
 
-* The user provides public commitment list, the index and the secret to the circuit
+* The user provides root, hash paths, index and secret to the circuit
 
 ```rust
-main(commitments_list, 0, 1)
+let hash_paths = [comm_2, right_branch];
+
+main(root, hash_paths, 0, 1);
 ```
 
-* The circuit checks that the hash of the secret is equal to the value at a given index or not
+* The circuit checks that the hash of the secret is a member of the merkle tree using index and hash paths.
 
 ```rust
 let commitment = std::hash::pedersen([secret])[0];
-assert(comms_list[index] == commitment);
+let check_root = std::merkle::compute_merkle_root(commitment, index, hash_paths);   
+assert (check_root == root);
 ```
 
 ### Running the circuit
@@ -59,3 +65,8 @@ nargo prove
 ```bash
 nargo verify
 ```
+
+## Resources
+
+* [Proof of Membership in Noir](https://noir-lang.org/examples/merkle-proof/)
+* [Merkle Trees](https://brilliant.org/wiki/merkle-tree/)
