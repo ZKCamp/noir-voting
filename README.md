@@ -1,20 +1,61 @@
 ## ZK Voting
 
-This repo contains a step by step walkthrough towards a full fledged ZK DApp to allow anonymous voting.
-
-### Repo Structure
-
-If you take a look at the existing branches, you'll see that there are multiple numbered branches. They build on top of each other, starting from 0-overview (the one you're in, right now).
-
-Each branch has its own readme, like this one, with an overview of the progress made towards the final DApp.
-
-Also, if you go to the pull requests, every branch has a PR to the previous one, which is useful to see the diff.
+## Identity Commitments
 
 ### Circuit Overview
 
-Some of the topics we'll cover in this walkthrough are:
+The goal here is to enable the user to prove that they are a member of a certain group (proof of membership) by knowing a secret value.
 
-* Identity commitments
-* Merkle tree - Proof of Inclusion
-* Smart Contracts - Depolyment and Testing
+**Steps Involved:**
 
+* We create a list of commitments of secrets. This list is public
+
+```rust
+let comm_1 = std::hash::pedersen([1])[0];
+let comm_2 = std::hash::pedersen([2])[0];
+let comm_3 = std::hash::pedersen([3])[0];
+let comm_4 = std::hash::pedersen([4])[0];
+
+let commitments_list = [comm_1, comm_2, comm_3, comm_4]; 
+```
+
+* The user provides public commitment list, the index and the secret to the circuit
+
+```rust
+main(commitments_list, 0, 1)
+```
+
+* The circuit checks that the hash of the secret is equal to the value at a given index or not
+
+```rust
+let commitment = std::hash::pedersen([secret])[0];
+assert(comms_list[index] == commitment);
+```
+
+### Running the circuit
+
+* Change the working directory to `circuits/`
+
+```bash
+cd circuits/
+```
+
+* Run tests
+
+```bash
+nargo test
+```
+
+If you have any `std::println` statements in your code, you can use `nargo test --show-output` command to show the output.
+
+* Generating the proof
+
+```bash
+nargo prove
+```
+
+* Verifying the proof
+
+```bash
+nargo verify
+```
