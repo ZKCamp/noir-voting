@@ -1,8 +1,9 @@
 use dep::std;
 
-fn main(comms_list: pub [Field; 4 ], index: Field, secret: Field) {
+fn main(root: pub Field, hash_paths: [Field; 2], index: Field, secret: Field) {
     let commitment = std::hash::pedersen([secret])[0];
-    assert(comms_list[index] == commitment);
+    let check_root = std::merkle::compute_merkle_root(commitment, index, hash_paths);   
+    assert (check_root == root);
 }
 
 #[test]
@@ -12,14 +13,17 @@ fn main_test() {
     let comm_3 = std::hash::pedersen([3])[0];
     let comm_4 = std::hash::pedersen([4])[0];
 
-    let commitments_list = [comm_1, comm_2, comm_3, comm_4]; 
+    let left_branch = std::hash::pedersen([comm_1, comm_2])[0];
+    let right_branch = std::hash::pedersen([comm_3, comm_4])[0];
+    
+    let root = std::hash::pedersen([left_branch,  right_branch])[0];
 
-    for i in 0..4 {
-        std::println(commitments_list[i]);
-    }
-    // For User 1
-    main(commitments_list, 0, 1);
+    let hash_paths = [comm_2, right_branch];
 
-    // For User 2
-    main(commitments_list, 1, 2);
+    main(root, hash_paths, 0, 1);
+
+    let hash_paths3 = [comm_4, left_branch];
+
+    // For User 3
+    main(root, hash_paths3, 2, 3);
 }
