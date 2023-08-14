@@ -1,72 +1,57 @@
 ## ZK Voting
 
-## Merkle Tree - Proof of Membership
+## Smart Contracts
 
-### Circuit Overview
+### Overview
 
-The goal here is to replace commitment list with a more suitable option - `Merkle Trees`. Instead of maintaining the whole list of user commitments publically, we can just maintain a single hash - merkle root. You can read more about merkle trees [here](https://brilliant.org/wiki/merkle-tree/).
+We have slightly modified the circuit from last branch to accomodate the usecase. Noe, we need to integrate it with smart contracts to build the application.
 
 **Steps Involved:**
 
-* We create a merkle tree from commitments of secrets
-
-```rust
-let comm_1 = std::hash::pedersen([1])[0];
-let comm_2 = std::hash::pedersen([2])[0];
-let comm_3 = std::hash::pedersen([3])[0];
-let comm_4 = std::hash::pedersen([4])[0];
-
-let left_branch = std::hash::pedersen([comm_1, comm_2])[0];
-let right_branch = std::hash::pedersen([comm_3, comm_4])[0];
-
-let root = std::hash::pedersen([left_branch,  right_branch])[0];
-```
-
-* The user provides root, hash paths, index and secret to the circuit
-
-```rust
-let hash_paths = [comm_2, right_branch];
-
-main(root, hash_paths, 0, 1);
-```
-
-* The circuit checks that the hash of the secret is a member of the merkle tree using index and hash paths.
-
-```rust
-let commitment = std::hash::pedersen([secret])[0];
-let check_root = std::merkle::compute_merkle_root(commitment, index, hash_paths);   
-assert (check_root == root);
-```
-
-### Running the circuit
-
-* Change the working directory to `circuits/`
+* Generating a verifier contract from the circuit. This contract will help us in verification of the generated proof. You can do this by running the following command from `circuits/` directory
 
 ```bash
-cd circuits/
+nargo run codegen-verifier
 ```
 
-* Run tests
+Post the execution of this step, you will notice a newly generated [contract](circuits/contract/circuits/plonk_vk.sol).
+
+* Writing a [voting contract](contracts/Voting.sol) which users can use to prove membership and cast votes anonymously.
+
+* Writing tests to validate the functionality of the application.
+
+### Setup
+
+* Install foundry by following the steps [here](https://book.getfoundry.sh/getting-started/installation). We will use foundry for testing and deploying our smart contract.
+
+* Install the `forge-std` lib which will be used in our testing using the command below
 
 ```bash
-nargo test
+forge install https://github.com/foundry-rs/forge-std --no-commit
 ```
 
-If you have any `std::println` statements in your code, you can use `nargo test --show-output` command to show the output.
-
-* Generating the proof
+* Run smart contract tests
 
 ```bash
-nargo prove
+forge test
 ```
 
-* Verifying the proof
+You will notice that out of 4 tests, only 3 pass. The `testFail_doubleVoting` fails because with our current circuit, the user can still cast multiple votes. We will fix this in the next branch!
+
+* You can run a local node to deploy these contracts
 
 ```bash
-nargo verify
+anvil
+```
+
+* Rename the `.env.example` file to `.env`
+
+* Deploy these contracts on the local node
+
+```bash
+forge script scripts/Voting.s.sol:DeploymentScript --rpc-url http://127.0.0.1:8545/ --broadcast --verify -vvvv
 ```
 
 ## Resources
 
-* [Proof of Membership in Noir](https://noir-lang.org/examples/merkle-proof/)
-* [Merkle Trees](https://brilliant.org/wiki/merkle-tree/)
+* [Foundry Book](https://book.getfoundry.sh/)
