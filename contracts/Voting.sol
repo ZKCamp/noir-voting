@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import { UltraVerifier } from "../circuits/contract/circuits/plonk_vk.sol";
+import {UltraVerifier} from "../circuits/contract/circuits/plonk_vk.sol";
 
 contract Voting {
     bytes32 merkleRoot;
     uint256 proposalCount;
 
     mapping(uint256 proposalId => Proposal) public proposals;
+    mapping(bytes32 hash => bool isNullified) nullifiers;
 
     UltraVerifier verifier;
 
@@ -36,17 +37,22 @@ contract Voting {
     function castVote(
         bytes calldata proof,
         uint proposalId,
-        uint vote
+        uint vote,
+        bytes32 nullifierHash
     ) public returns (bool) {
+        require(!nullifiers[nullifierHash], "Proof has been already submitted");
         require(
             block.timestamp < proposals[proposalId].deadline,
             "Voting period is over."
         );
 
-        bytes32[] memory publicInputs = new bytes32[](3);
+        nullifiers[nullifierHash] = true;
+
+        bytes32[] memory publicInputs = new bytes32[](4);
         publicInputs[0] = merkleRoot;
         publicInputs[1] = bytes32(proposalId);
         publicInputs[2] = bytes32(vote);
+        publicInputs[3] = nullifierHash;
         require(verifier.verify(proof, publicInputs), "Invalid proof");
 
         if (vote == 1) proposals[proposalId].forVotes += 1;
