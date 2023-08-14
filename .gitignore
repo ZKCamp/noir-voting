@@ -1,0 +1,12 @@
+# Foundry
+cache/
+out/
+broadcast/
+
+# JS
+node_modules/
+
+# Circuit file
+crs/
+
+.env
