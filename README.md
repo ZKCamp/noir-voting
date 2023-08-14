@@ -1,50 +1,46 @@
 ## ZK Voting
 
-## Smart Contracts
+## Nullifiers
 
 ### Overview
 
-We have slightly modified the circuit from last branch to accomodate the usecase. Noe, we need to integrate it with smart contracts to build the application.
+We saw in the previous branch that the user could double vote. To avoid this we use `nullifiers`. Nullifiers help us to only allow usage of a proof once.
 
 **Steps Involved:**
 
-* Generating a verifier contract from the circuit. This contract will help us in verification of the generated proof. You can do this by running the following command from `circuits/` directory
+* Changing the circuit to include a nullifier
 
-```bash
-nargo run codegen-verifier
+```rust
+let nullifier = std::hash::pedersen([root, secret, proposalId]);
 ```
 
-Post the execution of this step, you will notice a newly generated [contract](circuits/contract/circuits/plonk_vk.sol).
+* Changing the voting contract to store the nullifier when it is used and to throw an error when the nullifier is used again
 
-* Writing a [voting contract](contracts/Voting.sol) which users can use to prove membership and cast votes anonymously.
+```solidity
+mapping(bytes32 hash => bool isNullified) nullifiers;
+...
 
-* Writing tests to validate the functionality of the application.
+require(!nullifiers[nullifierHash], "Proof has been already submitted");
+...
+
+nullifiers[nullifierHash] = true;
+```
+
+* Changing the tests to accomodate changes.
 
 ### Setup
 
-* Install foundry by following the steps [here](https://book.getfoundry.sh/getting-started/installation). We will use foundry for testing and deploying our smart contracts.
-
-* Install the `forge-std` lib which will be used in our testing using the command below
-
-```bash
-forge install https://github.com/foundry-rs/forge-std --no-commit
-```
-
-* Run smart contract tests
+* Run smart contract tests to verify the changed functionality
 
 ```bash
 forge test
 ```
 
-**You will notice that out of 4 tests, only 3 pass. The `testFail_doubleVoting` fails because with our current circuit, the user can still cast multiple votes. We will fix this in the next branch!**
-
-* You can run a local node to deploy these contracts
+* You can run a local node to deploy these new contracts
 
 ```bash
 anvil
 ```
-
-* Rename the `.env.example` file to `.env`
 
 * Deploy these contracts on the local node
 
