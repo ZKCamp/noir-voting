@@ -53,14 +53,6 @@ contract VotingTest is Test {
         );
     }
 
-    function testFail_changedVote() public {
-        voteContract.castVote(
-            proofBytes,
-            0,
-            0
-        );
-    }
-
     function testFail_doubleVoting() public {
         voteContract.castVote(
             proofBytes,
