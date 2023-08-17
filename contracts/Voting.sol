@@ -43,10 +43,8 @@ contract Voting {
             "Voting period is over."
         );
 
-        bytes32[] memory publicInputs = new bytes32[](3);
+        bytes32[] memory publicInputs = new bytes32[](1);
         publicInputs[0] = merkleRoot;
-        publicInputs[1] = bytes32(proposalId);
-        publicInputs[2] = bytes32(vote);
         require(verifier.verify(proof, publicInputs), "Invalid proof");
 
         if (vote == 1) proposals[proposalId].forVotes += 1;
