@@ -48,11 +48,10 @@ contract Voting {
 
         nullifiers[nullifierHash] = true;
 
-        bytes32[] memory publicInputs = new bytes32[](4);
+        bytes32[] memory publicInputs = new bytes32[](3);
         publicInputs[0] = merkleRoot;
         publicInputs[1] = bytes32(proposalId);
-        publicInputs[2] = bytes32(vote);
-        publicInputs[3] = nullifierHash;
+        publicInputs[2] = nullifierHash;
         require(verifier.verify(proof, publicInputs), "Invalid proof");
 
         if (vote == 1) proposals[proposalId].forVotes += 1;
