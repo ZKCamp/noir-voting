@@ -8,8 +8,6 @@ If you take a look at the existing branches, you'll see that there are multiple 
 
 Each branch has its own readme, like this one, with an overview of the progress made towards the final DApp.
 
-Also, if you go to the pull requests, every branch has a PR to the previous one, which is useful to see the diff.
-
 ### Circuit Overview
 
 Some of the topics we'll cover in this walkthrough are:
