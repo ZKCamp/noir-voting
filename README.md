@@ -1,53 +1,38 @@
 ## ZK Voting
 
-## Nullifiers
+## Integration Tests
 
 ### Overview
 
-We saw in the previous branch that the user could double vote. To avoid this we use `nullifiers`. Nullifiers help us to only allow usage of a proof once.
+We can generate proof and verify using Noir CLI. Noir also provides another way to generate proof and verify using a typescript library. In this branch we will use the typescript library of Noir to write integration tests and a script to populate `Prover.toml` for our circuit.
 
-**Steps Involved:**
+**Test Files:**
 
-* Changing the circuit to include a nullifier
+* The common utils to handle Noir related functions is [here](utils/)
 
-```rust
-let nullifier = std::hash::pedersen([root, secret, proposalId]);
-```
-
-* Changing the voting contract to store the nullifier when it is used and to throw an error when the nullifier is used again
-
-```solidity
-mapping(bytes32 hash => bool isNullified) nullifiers;
-...
-
-require(!nullifiers[nullifierHash], "Proof has been already submitted");
-...
-
-nullifiers[nullifierHash] = true;
-```
-
-* Changing the tests to accomodate changes.
+* The integration test file, written using vitest is [here](test/integration.test.ts)
 
 ### Setup
 
-* Run smart contract tests to verify the changed functionality
+* Install dependencies
 
-```bash
-forge test
+```
+yarn
 ```
 
-* You can run a local node to deploy these new contracts
+* Populate the `Prover.toml` file using the command below
 
 ```bash
-anvil
+yarn run populate-prover-toml
 ```
 
-* Deploy these contracts on the local node
+* Run integration tests
 
 ```bash
-forge script scripts/Voting.s.sol:DeploymentScript --rpc-url http://127.0.0.1:8545/ --broadcast --verify -vvvv
+yarn run integration-test
 ```
 
 ## Resources
 
-* [Foundry Book](https://book.getfoundry.sh/)
+* [Noir Typescript Docs](https://noir-lang.org/typescript)
+* [Vitest Docs](https://vitest.dev/guide/)
