@@ -29,6 +29,7 @@ describe('Integration tests', function () {
         initialWitness.set(4, input.hash_path[1]);
         initialWitness.set(5, convertToHex(input.secret));
         initialWitness.set(6, convertToHex(input.proposalId));
+        initialWitness.set(7, convertToHex(input.vote));
 
         return initialWitness;
     }
@@ -57,7 +58,8 @@ describe('Integration tests', function () {
             index: 0,
             hash_path: merkleData.hashPath,
             secret: 1,
-            proposalId: 0
+            proposalId: 0,
+            vote: 1
         }
         
         const initialWitness = generateInitialWitness(inputs)
@@ -78,7 +80,8 @@ describe('Integration tests', function () {
             index: 0,
             hash_path: merkleData.hashPath,
             secret: 1,
-            proposalId: 0
+            proposalId: 0,
+            vote: 1
         }
         try {
             const initialWitness = generateInitialWitness(inputs)

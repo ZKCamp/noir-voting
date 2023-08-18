@@ -73,4 +73,13 @@ contract VotingTest is Test {
             nullifierHash
         );
     }
+
+    function testFail_changedVote() public {
+        voteContract.castVote(
+            proofBytes,
+            0,
+            0,
+            nullifierHash
+        );
+    }
 }
