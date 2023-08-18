@@ -1,38 +1,19 @@
 ## ZK Voting
 
-## Integration Tests
+## Security
 
 ### Overview
 
-We can generate proof and verify using Noir CLI. Noir also provides another way to generate proof and verify using a typescript library. In this branch we will use the typescript library of Noir to write integration tests and a script to populate `Prover.toml` for our circuit.
+The circuit implementation from last branch had an inherent flaw and could be frontrun. Since vote was not included in the circuit, an attacker could pick the proof and other public parameters from mempool and just change the vote.
 
-**Test Files:**
+__Improvement__
 
-* The common utils to handle Noir related functions is [here](utils/)
+* We have included the vote as a public input to the [circuit](circuits/src/main.nr)
 
-* The integration test file, written using vitest is [here](test/integration.test.ts)
+* During the verification, the vote is verified to make sure the proof was generated with the same vote
 
-### Setup
-
-* Install dependencies
-
-```
-yarn
-```
-
-* Populate the `Prover.toml` file using the command below
-
-```bash
-yarn run populate-prover-toml
-```
-
-* Run integration tests
-
-```bash
-yarn run integration-test
-```
+* Even if the attacker tries to frontrun, they will not be able to change the vote hence not gaining anything out of making that transaction. Refer to the `testFail_changedVote` in [tests](test/Voting.t.sol)
 
 ## Resources
 
-* [Noir Typescript Docs](https://noir-lang.org/typescript)
-* [Vitest Docs](https://vitest.dev/guide/)
+* [Front running](https://medium.com/degate/an-analysis-of-ethereum-front-running-and-its-defense-solutions-34ef81ba8456)
