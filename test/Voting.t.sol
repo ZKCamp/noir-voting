@@ -3,6 +3,7 @@ pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
 import "../contracts/Voting.sol";
+import "../circuits/contract/circuits/plonk_vk.sol";
 
 contract VotingTest is Test {
     Voting public voteContract;
@@ -49,7 +50,8 @@ contract VotingTest is Test {
         );
     }
 
-    function testFail_invalidProof() public {
+    function test_invalidProof() public {
+        vm.expectRevert(BaseUltraVerifier.EC_SCALAR_MUL_FAILURE.selector);
         voteContract.castVote(
             hex"12",
             0,
@@ -58,7 +60,7 @@ contract VotingTest is Test {
         );
     }
     
-    function testFail_doubleVoting() public {
+    function test_doubleVoting() public {
         voteContract.castVote(
             proofBytes,
             0,
@@ -66,6 +68,7 @@ contract VotingTest is Test {
             nullifierHash
         );
 
+        vm.expectRevert("Proof has been already submitted");
         voteContract.castVote(
             proofBytes,
             0,
@@ -74,7 +77,9 @@ contract VotingTest is Test {
         );
     }
 
-    function testFail_changedVote() public {
+    function test_changedVote() public {
+        vm.expectRevert(BaseUltraVerifier.PROOF_FAILURE.selector);
+        
         voteContract.castVote(
             proofBytes,
             0,
