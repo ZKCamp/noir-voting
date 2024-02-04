@@ -11,7 +11,7 @@ We have slightly modified the circuit from last branch to accomodate the usecase
 * Generating a verifier contract from the circuit. This contract will help us in verification of the generated proof. You can do this by running the following command from `circuits/` directory
 
 ```bash
-nargo run codegen-verifier
+nargo codegen-verifier
 ```
 
 Post the execution of this step, you will notice a newly generated [contract](circuits/contract/circuits/plonk_vk.sol).
